@@ -126,11 +126,11 @@
 </head>
 <body>
 <?php include "header.php";?>
-<div class="d-flex flex-wrap m-auto shadow p-5" style="width:996px">
+<div class="d-flex flex-wrap my-4 mx-auto shadow p-5" style="width:996px">
 <?php 
 
-//取出所有的站點資料
-$sql="select * from `station`";
+//取出所有的站點資料並依照before欄位進行排序
+$sql="select * from `station` order by `before`";
 $stations=$pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 
 //建立一個空陣列用來存放每個站點的應到時間及離開時間
@@ -256,10 +256,16 @@ foreach($tmp as $key => $t){
         foreach($busInfo as $bus => $info){
             if($info['arrive']>=0 && $info['leave']<=0){
                 $busInfo[$bus]['status']="已到站";
-                echo "<div class='block-top arrive'>";
-                echo $bus . "<br>已到站";
-                echo "</div>";
-                $flag=1;
+
+                //判斷是否有車為已到站，如果有則加上flag，
+                //如果同時有多部車為已到站的情形，則依照flag的狀態
+                //只需顯示一筆已到站的訊息即可
+                if($flag!=1){
+                    echo "<div class='block-top arrive'>";
+                    echo $bus . "<br>已到站";
+                    echo "</div>";
+                    $flag=1;
+                }
             }else if($info['leave']>0){
                 $busInfo[$bus]['status']="已過站";
             }else{
@@ -311,9 +317,13 @@ foreach($tmp as $key => $t){
         //建立一個陣列用來儲存最後要顯示在頁面上的三部接駁車資訊
         $busList=[];
         
+        //增加一個變數來決定要顯示的車子資訊數量
+        //最多三筆
+        $maxBus=(count($buses)>=3)?3:count($buses);
+
         //依照已到站,未到站,已過站的順序將接駁車資料放入到$busList陣列中
         //使用while迴圈來執行選車的動作直到$busList中的接駁車滿三部為止
-        while(count($busList)<3){
+        while(count($busList)<$maxBus){
             if(!empty($infoTmp['已到站'])){
                 $busList[array_keys($infoTmp['已到站'])[0]]=array_shift($infoTmp['已到站']);
             }else if(!empty($infoTmp['未到站'])){
