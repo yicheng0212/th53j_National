@@ -1,4 +1,4 @@
-<header class="shadow-sm p-3 d-flex w-100 bg-light" style="height:100px">
+<header class="shadow-sm p-3 d-flex w-100 bg-light">
 <a class="text-reset text-decoration-none" href="index.php">
             <img src="./icon/LOGO.png" alt="LOGO" height=80px>
         </a>
