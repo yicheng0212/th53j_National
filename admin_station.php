@@ -37,7 +37,7 @@
         <td>
             <?php
                 if($key != 0 ){
-                    echo "<button class='sw btn btn-info' data-id='$up'>往上</button>"   ;
+                    echo "<button class='sw btn btn-info' data-id='$up'>往上</button>";
                 }
             ?>
             <?php

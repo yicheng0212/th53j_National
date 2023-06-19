@@ -1,3 +1,4 @@
+// 驗證站點管理的新增跟編輯的地方
 $("#addMinute,#editMinute,#addWaiting,#editWaiting").on("invalid",function(){
     this.setCustomValidity("行駛時間或停留時間不應小於0")
 })
