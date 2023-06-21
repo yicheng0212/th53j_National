@@ -17,7 +17,6 @@
         <h1 class="text-center mt-5">網站管理-登入</h1>
         <form action="./api/login.php" method="post">
             <?php
-            //根據網址的error參數，顯示不同的錯誤內容
             if (isset($_GET['error'])) {
                 switch ($_GET['error']) {
                     case 1:
@@ -44,7 +43,6 @@
                 <input type="text" name="code" id="code" class='form-group form-control col-5'>
                 <div class="btn btn-primary btn-lg m-2" id="btnCode">
                     <?php
-                    //使用rand()來產生一個四位數驗證碼，並存入session中
                     echo $_SESSION['code'] = rand(1000, 9999);
                     ?>
                 </div>
@@ -66,7 +64,6 @@
     <script src="./jquery/jquery.js"></script>
     <script src="./bootstrap/bootstrap.js"></script>
     <script>
-        //重設驗證碼時，使用ajax向後端請求新的驗證碼，並更新至btnCode按鈕中
         $("#resetCode").on('click', function() {
             $.get("./api/reset_code.php", function(code) {
                 $("#btnCode").text(code);
