@@ -1,14 +1,18 @@
-<?php include_once "db.php";
-$first=$pdo->query("select * from `station` where `id`='{$_POST['ids'][0]}'")->fetch(PDO::FETCH_ASSOC);
-$second=$pdo->query("select * from `station` where `id`='{$_POST['ids'][1]}'")->fetch(PDO::FETCH_ASSOC);
+<?php
+include_once "db.php";
 
-$minBefore=$pdo->query("select min(`before`) from `station`")->fetchColumn();
+$firstId = $_POST['ids'][0];
+$secondId = $_POST['ids'][1];
 
-if($chk=array_search($minBefore,["{$first['id']}"=>$first['before'],"{$second['id']}"=>$second['before']])){
-$pdo->exec("update `station` set `before`='{$second['before']}',`minute`='{$second['minute']}' where `id`='{$first['id']}'");
-$pdo->exec("update `station` set `before`='{$first['before']}',`minute`='{$first['minute']}' where `id`='{$second['id']}'");                            
+$first = $pdo->query("SELECT * FROM `station` WHERE `id` = '{$firstId}'")->fetch(PDO::FETCH_ASSOC);
+$second = $pdo->query("SELECT * FROM `station` WHERE `id` = '{$secondId}'")->fetch(PDO::FETCH_ASSOC);
 
-}else{
-    $pdo->exec("update `station` set `before`='{$second['before']}' where `id`='{$first['id']}'");
-    $pdo->exec("update `station` set `before`='{$first['before']}' where `id`='{$second['id']}'");
+$minBefore = $pdo->query("SELECT MIN(`before`) FROM `station`")->fetchColumn();
+
+if ($minBefore === $first['before']) {
+    $pdo->exec("UPDATE `station` SET `before` = '{$second['before']}', `minute` = '{$second['minute']}' WHERE `id` = '{$firstId}'");
+    $pdo->exec("UPDATE `station` SET `before` = '{$first['before']}', `minute` = '{$first['minute']}' WHERE `id` = '{$secondId}'");
+} else {
+    $pdo->exec("UPDATE `station` SET `before` = '{$first['before']}' WHERE `id` = '{$secondId}'");
+    $pdo->exec("UPDATE `station` SET `before` = '{$second['before']}' WHERE `id` = '{$firstId}'");
 }
