@@ -9,9 +9,8 @@
             <td>操作</td>
         </tr>
         <?php
-        $sql = "select * from `bus`";
-        $rows = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($rows as $row) {
+        $rows = $pdo->query("SELECT * FROM `bus`")->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rows as $row) :
         ?>
             <tr>
                 <td><?= $row['name']; ?></td>
@@ -22,7 +21,7 @@
                 </td>
             </tr>
         <?php
-        }
+        endforeach;
         ?>
     </table>
 </div>
