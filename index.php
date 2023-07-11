@@ -22,15 +22,14 @@
         $arrive = 0;
         $leave = 0;
         foreach ($stations as $station) {
-            $timer[$station['name']] = [
-                'arrive' => ($leave += $station['minute']),
-                'leave' => ($leave += $station['waiting'])
-            ];
+            $arrive = $leave + $station['minute'];
+            $leave = $arrive + $station['waiting'];
+            $timer[$station['name']] = ['arrive' => $arrive, 'leave' => $leave];
         }
         $tmp = array_chunk($stations, 3);
-        foreach ($tmp as $k => &$t) {
+        foreach ($tmp as $k => $t) {
             if ($k % 2 == 1) {
-                $t = array_reverse($t);
+                $tmp[$k] = array_reverse($t);
             }
         }
         $buses = $pdo->query("SELECT * FROM `bus`")->fetchAll(PDO::FETCH_ASSOC);
@@ -78,11 +77,11 @@
                     }
                 }
 
+
                 if ($flag == 0) {
                     $message = ($min['bus'] != "") ? "<div class='block-top'>$min[bus]<br>約" . abs($min['min']) . "分鐘</div>" : "<div class='block-top'>未發車</div>";
                     echo $message;
                 }
-
 
                 $infoTmp = [];
                 foreach ($busInfo as $bus => $info) {
@@ -124,9 +123,7 @@
             }
             echo "</div>";
         }
-
         ?>
-
     </div>
     <script src="./jquery/jquery.js"></script>
     <script src="./bootstrap/bootstrap.js"></script>
