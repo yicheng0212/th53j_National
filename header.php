@@ -7,9 +7,7 @@
     </a>
     <div class="col-9 row align-items-center justify-content-end">
         <a href="admin.php" class="mx-2 text-reset text-decoration-none">系統管理</a>
-        <?php
-        if (isset($_SESSION['login'])):
-        ?>
+        <?php if (isset($_SESSION['login'])):?>
             <a href="./api/logout.php" class="mx-2 text-reset text-decoration-none">登出</a>
         <?php
         endif;

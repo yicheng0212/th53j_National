@@ -8,228 +8,134 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="./icon/53icon.png" type="image/x-icon">
     <link rel="stylesheet" href="./bootstrap/bootstrap.css">
-    <style>
-        .block {
-            width: 300px;
-            height: 200px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-
-        .block-top,
-        .block-bottom {
-            height: calc((100% - 25px) / 2);
-            display: flex;
-            text-align: center;
-            padding: 5px 0;
-        }
-
-        .block-top {
-            align-items: flex-end;
-        }
-
-        .point {
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            background-color: skyblue;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            z-index: 10;
-        }
-
-        .point::before {
-            content: "";
-            width: 20px;
-            height: 20px;
-            border: 3px solid white;
-            border-radius: 50%;
-        }
-
-        .right::after,
-        .left::after,
-        .line::after {
-            content: "";
-            background-color: skyblue;
-            position: absolute;
-        }
-
-        .right::after {
-            width: 50%;
-            height: 8px;
-            right: 0;
-        }
-
-        .left::after {
-            width: 50%;
-            height: 8px;
-            left: 0;
-        }
-
-        .line::after {
-            width: 100%;
-            height: 8px;
-            left: 0;
-        }
-
-        .connect {
-            width: 8px;
-            height: 200px;
-            background: skyblue;
-            top: 50%;
-        }
-
-        .connect-right {
-            position: absolute;
-            right: 0;
-        }
-
-        .connect-left {
-            position: absolute;
-            left: 0;
-        }
-
-        .block .bus-info {
-            display: none;
-            position: absolute;
-            top: 1px;
-            padding: 8px;
-            background: white;
-            box-shadow: 2px 2px 10px #999;
-            z-index: 100;
-            border-radius: 5px;
-        }
-
-        .arrive {
-            color: red;
-        }
-
-        .nobus {
-            color: #666;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
     <title>南港展覽館接駁專車-路網圖</title>
 </head>
 
+
 <body class="bg-warning">
     <?php include "header.php"; ?>
-    <div class="d-flex flex-wrap my-4 mx-auto mt-5 p-5 shadow bg-light" style="width:min-content">
+    <div class="d-flex flex-wrap my-4 mx-auto p-5 mt-5 shadow bg-light" style="width: min-content;">
         <?php
-        $stations = $pdo->query("SELECT * FROM `station` ORDER BY `before`")->fetchAll(PDO::FETCH_ASSOC);
+        $stations = $pdo->query("SELECT * FROM `station`")->fetchAll(PDO::FETCH_ASSOC);
         $timer = [];
         $arrive = 0;
         $leave = 0;
-        $div = 3;
-
         foreach ($stations as $station) {
-            $arrive = $leave + $station['minute'];
-            $leave = $arrive + $station['waiting'];
-            $timer[$station['name']]['arrive'] = $arrive;
-            $timer[$station['name']]['leave'] = $leave;
+            $timer[$station['name']] = [
+                'arrive' => ($leave += $station['minute']),
+                'leave' => ($leave += $station['waiting'])
+            ];
         }
-
-        $tmp = array_chunk($stations, $div);
-
-        foreach ($tmp as $k => $t) {
+        $tmp = array_chunk($stations, 3);
+        foreach ($tmp as $k => &$t) {
             if ($k % 2 == 1) {
-                $tmp[$k] = array_reverse($t);
+                $t = array_reverse($t);
             }
         }
         $buses = $pdo->query("SELECT * FROM `bus`")->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($tmp as $key => $t) {
-            echo "<div class='d-flex w-100 position-relative" . (($key % 2 == 1) ? " justify-content-end" : "") . "'>";
-            if ($key < ceil(count($stations) / $div) - 1) {
-                echo "<div class='connect connect-" . (($key % 2 == 1) ? "left" : "right") . "'></div>";
+            $justifyClass = ($key % 2 == 1) ? 'justify-content-end' : '';
+            echo "<div class='d-flex w-100 position-relative $justifyClass'>";
+
+            if ((ceil(count($stations) / 3) - 1) > $key) {
+                $connectClass = ($key % 2 == 1) ? 'connect-left' : 'connect-right';
+                echo "<div class='connect $connectClass'></div>";
             }
+
             foreach ($t as $k => $station) {
-                $class = "block line";
+                $blockClass = 'block line';
+
                 if ($key == 0 && $k == 0) {
-                    $class = "block right";
-                } else if ($key == ceil(count($stations) / $div) - 1) {
+                    $blockClass = 'block right';
+                } else if ($key == ceil(count($stations) / 3) - 1) {
                     if ($key % 2 == 0) {
-                        $class = ($k == count($t) - 1) ? "block left" : "block line";
+                        $blockClass = ($k == count($t) - 1) ? 'block left' : 'block line';
                     } else {
-                        $class = ($k == 0) ? "block right" : "block line";
+                        $blockClass = ($k == 0) ? 'block right' : 'block line';
                     }
                 }
-                echo "<div class='$class'>";
+
+                echo "<div class='$blockClass'>";
                 $busInfo = [];
                 foreach ($buses as $bus) {
-                    $busInfo[$bus['name']]['arrive'] = $bus['minute'] - $timer[$station['name']]['arrive'];
-                    $busInfo[$bus['name']]['leave'] = $bus['minute'] - $timer[$station['name']]['leave'];
+                    $arrive = $bus['minute'] - $timer[$station['name']]['arrive'];
+                    $leave = $bus['minute'] - $timer[$station['name']]['leave'];
+
+                    $status = ($arrive >= 0 && $leave <= 0) ? '已到站' : (($leave > 0) ? '已過站' : '約' . abs($arrive) . '分鐘');
+
+                    $busInfo[$bus['name']] = compact('arrive', 'leave', 'status');
                 }
                 $min = ['min' => -999999, 'bus' => ''];
                 $flag = 0;
-
-                foreach ($busInfo as $bus => &$info) {
-                    if ($info['arrive'] >= 0 && $info['leave'] <= 0) {
-                        $info['status'] = '已到站';
-                        if ($flag != 1) {
-                            echo "<div class='block-top arrive'>{$bus}<br>已到站</div>";
-                            $flag = 1;
-                        }
-                    } else if ($info['leave'] > 0) {
-                        $info['status'] = '已過站';
-                    } else {
-                        $info['status'] = "約" . abs($info['arrive']) . "分鐘";
-                        if ($info['arrive'] > $min['min']) {
-                            $min = ['min' => $info['arrive'], 'bus' => $bus];
-                        }
-                    }
-                }
-                if ($flag == 0) {
-                    if ($min['bus'] != "") {
-                        echo "<div class='block-top'>{$min['bus']}<br>約" . abs($min['min']) . "分鐘</div>";
-                    } else {
-                        echo "<div class='block-top'>未發車</div>";
-                    }
-                }
-                $infoTmp = [
-                    '已到站' => [],
-                    '已過站' => [],
-                    '未到站' => [],
-                ];
-
                 foreach ($busInfo as $bus => $info) {
-                    $infoTmp[$info['status']][$bus] = $info;
+                    if ($info['status'] == '已到站' && $flag != 1) {
+                        echo "<div class='block-top arrive'>$bus<br>已到站</div>";
+                        $flag = 1;
+                    } else if ($info['status'] != '已過站' && $info['arrive'] > $min['min']) {
+                        $min = ['min' => $info['arrive'], 'bus' => $bus];
+                    }
                 }
 
-                $busList = array_slice($infoTmp['已到站'], 0, 1) + array_slice($infoTmp['未到站'], 0, 1) + array_slice($infoTmp['已過站'], 0, 1);
+                if ($flag == 0) {
+                    $message = ($min['bus'] != "") ? "<div class='block-top'>$min[bus]<br>約" . abs($min['min']) . "分鐘</div>" : "<div class='block-top'>未發車</div>";
+                    echo $message;
+                }
+
+
+                $infoTmp = [];
+                foreach ($busInfo as $bus => $info) {
+                    if ($info['status'] == "已到站") {
+                        $infoTmp['已到站'][$bus] = $info;
+                    } else if ($info['status'] == '已過站') {
+                        $infoTmp['已過站'][$bus] = $info;
+                    } else {
+                        $infoTmp['未到站'][$bus] = $info;
+                    }
+                }
+
+                $busList = [];
+
+                $maxBus = (count($buses) >= 3) ? 3 : count($buses);
+
+                while (count($busList) < $maxBus) {
+                    foreach (['已到站', '未到站', '已過站'] as $status) {
+                        if (!empty($infoTmp[$status])) {
+                            $busList[key($infoTmp[$status])] = array_shift($infoTmp[$status]);
+                            break;
+                        }
+                    }
+                }
 
                 echo "<div class='point'></div>";
-                echo "<div class='bus-info'>";
 
+                echo "<div class='bus-info'>";
                 foreach ($busList as $name => $info) {
-                    $class = ($info['status'] == '已到站') ? " class='arrive'" : "";
-                    echo "<div{$class}>";
+                    $statusClass = ($info['status'] == '已到站') ? 'arrive' : '';
+                    echo "<div class='$statusClass'>";
                     echo $name . ": " . $info['status'];
                     echo "</div>";
                 }
-
                 echo "</div>";
+
                 echo "<div class='block-bottom'>{$station['name']}</div>";
                 echo "</div>";
             }
             echo "</div>";
         }
+
         ?>
 
     </div>
     <script src="./jquery/jquery.js"></script>
     <script src="./bootstrap/bootstrap.js"></script>
-    <script>
-        $(".point").hover(function() {
-            $(this).next().show();
-        }, function() {
-            $(".block .bus-info").hide();
-        });
-    </script>
+    <script scr="js.js"></script>
 </body>
 
 </html>
+<script>
+    $(".point").hover(function() {
+        $(this).next().toggle();
+    });
+</script>

@@ -7,11 +7,6 @@ $("#addMinute, #editMinute, #addWaiting, #editWaiting").on({
     }
 });
 
-$(".sw").on("click", function () {
-    let ids = $(this).data('id').split("-");
-    $.post("./api/sw.php", { ids }, () => location.reload());
-});
-
 function del(table, id) {
     $.post("./api/del.php", { table, id }, () => location.reload());
 }

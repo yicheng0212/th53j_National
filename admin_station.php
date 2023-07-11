@@ -1,8 +1,8 @@
 <div class="list">
     <h1 class="border p-3 text-center my-3">站點管理
-        <button class="btn btn-success" onclick="toggleViews('.add', '.list, .edit')">新增</button>
+        <button class="btn btn-success" onclick="$('.add').show();$('.list,.edit').hide()">新增</button>
     </h1>
-    <table class="table table-bordered text-center">
+    <table class="table table-bordered text-center w-100">
         <tr>
             <td>站點名稱</td>
             <td>行駛時間(分鐘)</td>
@@ -10,45 +10,20 @@
             <td>操作</td>
         </tr>
         <?php
-        $rows = $pdo->query("SELECT * FROM `station` ORDER BY `before`")->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($rows as $key => $row) {
-            if ($key !== 0) {
-                $up = $row['id'] . '-' . $rows[$key - 1]['id'];
-            } else {
-                $up = $row['id'] . '-' . $row['id'];
-                $down = $row['id'] . '-' . $rows[$key + 1]['id'];
-            }
-
-            if ($key != array_key_last($rows)) {
-                $down = $row['id'] . '-' . $rows[$key + 1]['id'];
-            } else {
-                $down = $row['id'] . '-' . $row['id'];
-                $up = $row['id'] . '-' . $rows[$key - 1]['id'];
-            }
-
+        $rows = $pdo->query("SELECT * FROM `station`")->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rows as $row) :
         ?>
             <tr>
                 <td><?= $row['name']; ?></td>
                 <td><?= $row['minute']; ?></td>
                 <td><?= $row['waiting']; ?></td>
                 <td>
-                    <?php
-                    if ($key != 0) {
-                        echo "<button class='sw btn btn-info' data-id='$up'>往上</button>";
-                    }
-                    ?>
-                    <?php
-                    if ($key != array_key_last($rows)) {
-                        echo "<button class='sw btn btn-info' data-id='$down'>往下</button>";
-                    }
-                    ?>
-                    <button class="btn btn-warning" onclick="edit('station',<?= $row['id']; ?>);toggleViews('.edit', '.list, .add')">編輯</button>
+                    <button class="btn btn-warning" onclick="edit('station',<?= $row['id']; ?>);$('.edit').show();$('.list,.add').hide()">編輯</button>
                     <button class="btn btn-danger" onclick="del('station',<?= $row['id']; ?>)">刪除</button>
                 </td>
             </tr>
         <?php
-        }
+        endforeach;
         ?>
     </table>
 </div>
@@ -58,19 +33,19 @@
 
         <div class="row w-100">
             <label for="" class="col-2">站點名稱</label>
-            <input type="text" name="name" id="name" class="form-group form-control col-10">
+            <input type="text" name="name" id="name" class='form-group form-control col-10'>
         </div>
         <div class="row w-100">
             <label for="" class="col-2">行駛時間(分鐘)</label>
-            <input type="number" name="minute" id="addMinute" class="form-group form-control col-10" min="0" step="1" required>
+            <input type="number" name="minute" id="addMinute" class='form-group form-control col-10' min='0' step="1" required>
         </div>
         <div class="row w-100">
             <label for="" class="col-2">停留時間(分鐘)</label>
-            <input type="number" name="waiting" id="addWaiting" class="form-group form-control col-10" min="0" step="1" required>
+            <input type="number" name="waiting" id="addWaiting" class='form-group form-control col-10' min='0' step="1" required>
         </div>
         <div class="row w-100">
-            <input type="submit" value="新增" class="col-12 btn btn-success my-1">
-            <input type="button" value="回上頁" class="col-12 btn btn-secondary my-1" onclick="toggleViews('.list', '.edit, .add')">
+            <input type="submit" value="新增" class='col-12 btn btn-success my-1'>
+            <input type="button" value="回上頁" class='col-12 btn btn-secondary my-1' onclick="$('.list').show();$('.edit,.add').hide()">
         </div>
     </form>
 
@@ -80,16 +55,17 @@
     <form action="./api/edit_station.php" method="post">
         <div class="row w-100">
             <label for="" class="col-2">行駛時間(分鐘)</label>
-            <input type="number" name="minute" id="editMinute" class="form-group form-control col-10" min="0" step="1" required>
+            <input type="number" name="minute" id="editMinute" class='form-group form-control col-10' min='0' step="1" required>
         </div>
         <div class="row w-100">
             <label for="" class="col-2">停留時間(分鐘)</label>
-            <input type="number" name="waiting" id="editWaiting" class="form-group form-control col-10" min="0" step="1" required>
+            <input type="number" name="waiting" id="editWaiting" class='form-group form-control col-10' min='0' step="1" required>
         </div>
         <div class="row w-100">
             <input type="hidden" name="id" id="editId">
-            <input type="submit" value="修改" class="col-12 btn btn-success my-1">
-            <input type="button" value="回上頁" class="col-12 btn btn-secondary my-1" onclick="toggleViews('.list', '.edit, .add')">
+            <input type="submit" value="修改" class='col-12 btn btn-success my-1'>
+            <input type="button" value="回上頁" class='col-12 btn btn-secondary my-1' onclick="$('.list').show();$('.edit,.add').hide()">
         </div>
     </form>
+
 </div>
