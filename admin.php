@@ -1,5 +1,4 @@
-<?php include_once "./api/db.php"; ?>
-<?php
+<?php include_once "./api/db.php";
 if (!isset($_SESSION['login'])) {
     header("location:login.php");
 }
@@ -27,7 +26,6 @@ if (!isset($_SESSION['login'])) {
         <?php include "admin_$pos.php"; ?>
     </div>
     <script src="./jquery/jquery.js"></script>
-    <script src="./bootstrap/bootstrap.js"></script>
     <script src="js.js"></script>
 </body>
 

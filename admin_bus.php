@@ -8,10 +8,7 @@
             <td>已行駛時間</td>
             <td>操作</td>
         </tr>
-        <?php
-        $rows = $pdo->query("SELECT * FROM `bus`")->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($rows as $row) :
-        ?>
+        <?php foreach ($pdo->query("SELECT * FROM `bus`")->fetchAll(PDO::FETCH_ASSOC) as $row) : ?>
             <tr>
                 <td><?= $row['name']; ?></td>
                 <td><?= $row['minute']; ?>分鐘</td>
@@ -20,44 +17,39 @@
                     <button class="btn btn-danger" onclick="del('bus',<?= $row['id']; ?>)">刪除</button>
                 </td>
             </tr>
-        <?php
-        endforeach;
-        ?>
+        <?php endforeach; ?>
     </table>
 </div>
 <div class="add" style="display:none">
     <h1 class="border p-3 my-3 text-center w-100">新增接駁車</h1>
     <form action="./api/add_bus.php" method="post">
-
         <div class="row w-100">
-            <label for="" class="col-2">車牌</label>
-            <input type="text" name="name" id="name" class='form-group form-control col-10'>
+            <label for="name" class="col-2">車牌</label>
+            <input type="text" name="name" id="name" class="form-group form-control col-10">
         </div>
         <div class="row w-100">
-            <label for="" class="col-2">已行駛時間(分鐘)</label>
-            <input type="number" name="minute" id="addMinute" class='form-group form-control col-10' min='0' step="1" required>
+            <label for="addMinute" class="col-2">已行駛時間(分鐘)</label>
+            <input type="number" name="minute" id="addMinute" class="form-group form-control col-10" min="0" step="1" required>
         </div>
         <div class="row w-100">
-            <input type="submit" value="新增" class='col-12 btn btn-success my-1'>
-            <input type="button" value="回上頁" class='col-12 btn btn-secondary my-1' onclick="$('.list').show();$('.edit,.add').hide()">
+            <input type="submit" value="新增" class="col-12 btn btn-success my-1">
+            <input type="button" value="回上頁" class="col-12 btn btn-secondary my-1" onclick="$('.list').show();$('.edit,.add').hide()">
         </div>
     </form>
-
 </div>
 <div class="edit" style="display:none">
     <h1 class="border p-3 my-3 text-center">修改「<span id="title"></span>」接駁車</h1>
     <form action="./api/edit_bus.php" method="post" id="editBusForm">
         <div class="row w-100">
-            <label for="" class="col-2">已行駛時間(分鐘)</label>
-            <input type="number" name="minute" id="editMinute" class='form-group form-control col-10' min='0' step="1" required>
+            <label for="editMinute" class="col-2">已行駛時間(分鐘)</label>
+            <input type="number" name="minute" id="editMinute" class="form-group form-control col-10" min="0" step="1" required>
             <input type="hidden" name="id" id="editId">
             <div class="text-danger" id="editBusAlert"></div>
         </div>
         <div class="row w-100">
-            <input type="submit" value="修改" class='col-12 btn btn-success my-1'>
-            <input type="button" value="回上頁" class='col-12 btn btn-secondary my-1' onclick="$('.list').show();$('.edit,.add').hide()">
+            <input type="submit" value="修改" class="col-12 btn btn-success my-1">
+            <input type="button" value="回上頁" class="col-12 btn btn-secondary my-1" onclick="$('.list').show();$('.edit,.add').hide()">
         </div>
     </form>
-
 </div>
 </div>
